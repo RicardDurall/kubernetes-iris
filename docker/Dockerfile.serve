@@ -1,0 +1,49 @@
+# Serving container for Iris Classifier API
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock ./
+
+# Install dependencies (without dev dependencies)
+RUN poetry config virtualenvs.create false && \
+    poetry install --without dev --no-interaction --no-ansi
+
+# Copy source code
+COPY src/ ./src/
+
+# Install package
+RUN pip install -e .
+
+# Create directories
+RUN mkdir -p /app/models
+
+# Copy pre-trained model (optional - can also mount as volume)
+# COPY models/iris_model.joblib /app/models/
+
+# Expose API port
+EXPOSE 8000
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV API_HOST=0.0.0.0
+ENV API_PORT=8000
+ENV MODEL_PATH=/app/models/iris_model.joblib
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run FastAPI server
+CMD ["uvicorn", "iris_classifier.serve:app", "--host", "0.0.0.0", "--port", "8000"]
