@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: iris-training-job
+  namespace: iris-ml
+  labels:
+    app: iris-classifier
+    component: training
+spec:
+  # Keep completed jobs for debugging
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: iris-classifier
+        component: training
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: trainer
+        image: iris-classifier-train:latest
+        imagePullPolicy: Never  # Use local image for Minikube
+        envFrom:
+        - configMapRef:
+            name: iris-classifier-config
+        volumeMounts:
+        - name: model-storage
+          mountPath: /app/models
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: iris-model-pvc

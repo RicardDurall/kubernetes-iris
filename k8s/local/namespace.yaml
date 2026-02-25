@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: iris-ml
+  labels:
+    name: iris-ml
+    environment: local

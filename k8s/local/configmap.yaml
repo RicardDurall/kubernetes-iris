@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iris-classifier-config
+  namespace: iris-ml
+data:
+  # Model configuration
+  RANDOM_STATE: "42"
+  TEST_SIZE: "0.2"
+  N_ESTIMATORS: "100"
+
+  # API configuration
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+
+  # Paths
+  MODEL_PATH: "/app/models/iris_model.joblib"
+
+  # Model version
+  MODEL_VERSION: "v1"

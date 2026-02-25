@@ -53,6 +53,9 @@ minikube-start:
 	bash scripts/setup_minikube.sh
 
 deploy-local:
+	bash scripts/deploy_local.sh
+
+deploy-local-manual:
 	kubectl apply -f k8s/local/
 
 undeploy-local:
@@ -60,6 +63,12 @@ undeploy-local:
 
 logs-local:
 	kubectl logs -f -l app=iris-classifier -n iris-ml
+
+status-local:
+	kubectl get all -n iris-ml
+
+describe-local:
+	kubectl describe deployment iris-classifier -n iris-ml
 
 # GKE
 setup-gke:
